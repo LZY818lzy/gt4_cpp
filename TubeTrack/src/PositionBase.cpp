@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <nlohmann/json.hpp>
 
 CPositionBase::CPositionBase()
 {
@@ -42,7 +43,7 @@ bool CPositionBase::Push(CTube &tube, int /*mode*/)	//0根据信号自动，1异
 			EntryTriggerBeforePush(tube);
 		}
 		m_tubes.push_back(tube);
-		UpdateTag();
+		UpdateForm();
 		if (m_bTriggerEnabled)
 		{
 			EntryTrigger(tube);
@@ -62,7 +63,7 @@ bool CPositionBase::Pop(CTube *pTube, int /*mode*/)
 	{
 		*pTube = m_tubes[0];
 		m_tubes.pop_back();
-		UpdateTag();
+		UpdateForm();
 		if (m_bTriggerEnabled)
 		{
 			ExitTrigger(*pTube);
@@ -96,7 +97,7 @@ bool CPositionBase::IsEmpty()
 void CPositionBase::Clear()
 {
 	m_tubes.clear();
-	UpdateTag();
+	UpdateForm();
 }
 
 void CPositionBase::Modify()
@@ -106,7 +107,7 @@ void CPositionBase::RestoreFromTag()
 {
 }
 
-void CPositionBase::UpdateTag()
+void CPositionBase::UpdateForm()
 {
 }
 
@@ -182,4 +183,28 @@ void CPositionBase::DebugOut()
 	std::cout << "是否喷印  :" << (tube.bSprayed ? "是" : "否") << std::endl;
 
     return;
+}
+
+string CPositionBase::convertToJson(const CTube & tube)
+{
+
+	// 使用nlohmann/json库实现生产计划转换为JSON格式字符串
+    nlohmann::json j;
+	j["calib_tube"] = tube.calib_tube;
+    j["order_no"] = tube.order_no;
+    j["item_no"] = tube.item_no;
+    j["roll_no"] = tube.roll_no;
+    j["melt_no"] = tube.melt_no;
+    j["lot_no"] = tube.lot_no;
+	j["tube_no"] = tube.tube_no;
+	j["flow_no"] = tube.flow_no;
+    j["lotno_coupling"] = tube.lotno_coupling;
+    j["meltno_coupling"] = tube.meltno_coupling;
+	j["length"] = tube.length;
+	j["weight"] = tube.weight;
+	j["lengthOk"] = tube.lengthOk;
+	j["weightOk"] = tube.weightOk;
+	j["bSprayed"] = tube.bSprayed;
+
+    return j.dump(4);
 }
