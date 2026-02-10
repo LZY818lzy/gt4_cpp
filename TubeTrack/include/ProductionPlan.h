@@ -23,5 +23,5 @@ public:
     int tube_no;            // 管号
 
 private:
-    static const char *REDIS_KEY; // 存储的key名称
+    const char *REDIS_KEY = "PlanInfo"; // 发布的key名称
 };
