@@ -49,7 +49,6 @@ bool CProductionPlan::Pop(CTube *pTube, int /*mode*/)
         // 更新计数器
         feed_num--;
         tube_no += 1;
-        
 
         return true;
     }
@@ -77,7 +76,7 @@ string CProductionPlan::convertToJson(const CProductionPlan &plan)
 }
 
 // 初始化静态常量
-const char *CProductionPlan::REDIS_KEY = "PlanInfo";
+// const char *CProductionPlan::REDIS_KEY = "PlanInfo";
 
 void CProductionPlan::UpdateForm()
 {
@@ -105,18 +104,10 @@ void CProductionPlan::UpdateForm()
         // 写入Redis数据库
         g_redis->set(REDIS_KEY, jsonStr);
 
-        // 验证写入是否成功
-        auto val = g_redis->get(REDIS_KEY);
-        if (val)
-        {
-            // 输出
-            std::cout << "  Key: " << REDIS_KEY << std::endl;
-            std::cout << "  Value: " << jsonStr << std::endl;
-        }
-        else
-        {
-            std::cerr << "错误：无法从Redis读取数据！" << std::endl;
-        }
+        // 发布详细消息到 RealDataChanged 主题
+        g_redis->publish("RealDataChanged", REDIS_KEY);
+
+        std::cout << "✓ 已更新Redis并发布通知:" << REDIS_KEY << std::endl;
     }
     catch (const std::exception &e)
     {
